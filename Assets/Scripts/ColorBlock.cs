@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// A coloured block the player can pick up and throw into a matching ColorSortingBox.
+// A coloured block the player can pick up and throw into a matching ColorSortingBox.
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Collider))]
 public class ColorBlock : MonoBehaviour, IInteractable
@@ -44,7 +44,7 @@ public class ColorBlock : MonoBehaviour, IInteractable
         ApplyGlow();
     }
 
-    /// Creates a material instance and enables emission with the chosen glow colour.
+    // Creates a material instance and enables emission with the chosen glow colour.
     private void ApplyGlow()
     {
         Renderer r = GetComponent<Renderer>();
@@ -76,11 +76,11 @@ public class ColorBlock : MonoBehaviour, IInteractable
         if (throwInput) Throw();
     }
 
-    // ── IInteractable ──────────────────────────────────────────────────────────
+    // Interactable
 
     public string GetPromptText() => isHeld
         ? "[LMB] Throw  |  [E] Drop"
-        : $"[E] Pick up {colorId} block";
+        : $"[E] Pick up {colorId} fuel source";
 
     public void Interact(PlayerInteraction player)
     {
@@ -88,9 +88,9 @@ public class ColorBlock : MonoBehaviour, IInteractable
         PickUp(player);
     }
 
-    // ── Pick up / Drop / Throw ─────────────────────────────────────────────────
+    // Pick up / Drop / Throw
 
-    /// Attaches the block to the player camera.
+    // Attaches the block to the player camera.
     public void PickUp(PlayerInteraction player)
     {
         if (isHeld) return;
@@ -114,7 +114,7 @@ public class ColorBlock : MonoBehaviour, IInteractable
         gameObject.layer = IgnoreRaycastLayer;
     }
 
-    /// Releases the block in place with no velocity.
+    // Releases the block in place with no velocity.
     public void Drop()
     {
         if (!isHeld) return;
@@ -128,15 +128,15 @@ public class ColorBlock : MonoBehaviour, IInteractable
         gameObject.layer = originalLayer;
     }
 
-    /// Releases the block and launches it forward from the camera.
+    // Releases the block and launches it forward from the camera.
     public void Throw()
     {
         if (!isHeld) return;
 
         Vector3 direction = playerCamera.transform.forward;
 
-        // Release state without going through Drop() — keeps collider disabled
-        // until the block has traveled clear of the player capsule.
+        // Release state without going through Drop() which keeps collider disabled
+        // until the block has traveled clear of the player capsule so player does not collide
         isHeld = false;
         holder = null;
         playerCamera = null;

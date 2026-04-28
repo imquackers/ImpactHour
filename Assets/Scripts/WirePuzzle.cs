@@ -2,16 +2,13 @@ using UnityEngine;
 using System.Collections.Generic;
 
 // WirePuzzle
-// A simple matching puzzle where the player must
-// connect wires from the left side to the correct
-// corresponding wires on the right side.
-//
-// - Left wires are fixed (0 ? n)
-// - Right wires are shuffled
-// - A dictionary stores the correct matches
-// - Player selections are stored separately
-// - Completion is checked by comparing both dictionaries
-//
+// A simple matching puzzle where the player must connect wires from the left side to the correct corresponding wires on the right side
+// Left wires are fixed (0 ? n)
+// Right wires are shuffled
+// A dictionary stores the correct matches
+// Player selections are stored separately
+// Completion is checked by comparing both dictionaries
+
 public class WirePuzzle : PuzzleBase
 {
     [Header("Wire Puzzle Settings")]
@@ -28,7 +25,7 @@ public class WirePuzzle : PuzzleBase
         new Color(1f, 0f, 1f) // Magenta
     };
 
-    // DATA STRUCTURES
+  
 
     // Left-side wire indices (0 to numberOfWires - 1)
     private List<int> leftConnections = new List<int>();

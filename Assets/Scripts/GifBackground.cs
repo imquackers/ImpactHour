@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-/// Displays an animated gif by cycling through sprite frames extracted from a Texture2D array.
-/// Import the gif frames as individual PNG sprites and assign them to the frames array.
-/// If only a single texture is assigned it shows as a static background.
+// displays a gif by using images and playing them in a sequence.
+// Import the gif frames as individual PNG sprites and assign them to the frames array.
+// If only a single texture is assigned it shows as a static background.
 [RequireComponent(typeof(RawImage))]
 public class GifBackground : MonoBehaviour
 {

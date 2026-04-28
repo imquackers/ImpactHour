@@ -4,44 +4,53 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
+    // singleton
     public static GameManager Instance { get; private set; }
 
+    // game settings
     [Header("Game Settings")]
-    public float totalGameTime = 600f;
-    public int totalPuzzles = 10;
+    public float totalGameTime = 600f; // Total time (seconds)
+    public int totalPuzzles = 10;      // How many puzzles to win
 
+    // UI
     [Header("UI References")]
-    public TMPro.TextMeshProUGUI timerText;
-    public TMPro.TextMeshProUGUI puzzleCountText;
+    public TMPro.TextMeshProUGUI timerText;       // Timer display
+    public TMPro.TextMeshProUGUI puzzleCountText; // Puzzle progress
 
+    // Effects
     [Header("Effects")]
-    public ExplosionEffect explosionEffect;
-    public UnityEngine.UI.Image fadeOverlay;
-    public float fadeInDuration = 2f;
-    public float fadeToBlackDuration = 2f;
+    public ExplosionEffect explosionEffect; // particle effect (can add our own later)
+    public UnityEngine.UI.Image fadeOverlay; // Black screen for fades
+    public float fadeInDuration = 2f;        // Fade in time
+    public float fadeToBlackDuration = 2f;   // Fade out time
 
+    // meteor
     [Header("Meteor")]
-    public MeteorMover meteorMover;
-    public MeteorExplosionEffect meteorExplosionEffect;
+    public MeteorMover meteorMover; // Controls meteor movement
+    public MeteorExplosionEffect meteorExplosionEffect; // Explosion when destroyed
 
+    // earth models
     [Header("Impact Swap")]
-    public GameObject earthModel;
-    public GameObject destroyedModel;
+    public GameObject earthModel;      // Normal Earth
+    public GameObject destroyedModel; // Destroyed Earth
 
+    // game over screen
     [Header("Game Over")]
     public GameOverScreen gameOverScreen;
 
+    // internal variables
     private float timeRemaining;
     private int puzzlesSolved = 0;
     private bool gameActive = true;
 
-    // Cached values — UpdateUI only writes to TMP when these change.
+    // Cached values (prevents updating UI every frame unnecessarily)
     private int cachedMinutes = -1;
     private int cachedSeconds = -1;
     private int cachedPuzzlesSolved = -1;
 
     private void Awake()
     {
+        // Ensure only one GameManager exists
         if (Instance == null)
         {
             Instance = this;
@@ -54,9 +63,10 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        timeRemaining = totalGameTime;
+        timeRemaining = totalGameTime; // Start timer
         UpdateUI();
-        
+
+        // Start screen fully black, then fade in
         if (fadeOverlay != null)
         {
             fadeOverlay.color = new Color(0, 0, 0, 1);
@@ -68,8 +78,10 @@ public class GameManager : MonoBehaviour
     {
         if (!gameActive) return;
 
+        // Countdown timer
         timeRemaining -= Time.deltaTime;
 
+        // If time runs out then game over
         if (timeRemaining <= 0)
         {
             timeRemaining = 0;
@@ -79,37 +91,39 @@ public class GameManager : MonoBehaviour
         UpdateUI();
     }
 
+    // Called when a puzzle is completed
     public void PuzzleSolved()
     {
         puzzlesSolved++;
         UpdateUI();
 
+        // If all puzzles done then win
         if (puzzlesSolved >= totalPuzzles)
         {
             Victory();
         }
     }
 
-    /// Returns how much time has elapsed since the game started (0 to totalGameTime).
+    // Returns time passed since start
     public float GetElapsedTime() => totalGameTime - timeRemaining;
 
-    /// Returns the total game duration.
+    // Returns total time allowed
     public float GetTotalTime() => totalGameTime;
 
+    // Removes time as punishment
     public void ApplyTimePenalty(float percentPenalty)
     {
         float timeLost = totalGameTime * percentPenalty;
         timeRemaining -= timeLost;
-        
+
         if (timeRemaining < 0)
-        {
             timeRemaining = 0;
-        }
-        
-        Debug.Log($"Time penalty! Lost {timeLost:F1} seconds. Time remaining: {timeRemaining:F1}s");
+
+        Debug.Log($"Lost {timeLost:F1} seconds");
         UpdateUI();
     }
 
+    // Update timer + puzzle UI (only when values change)
     private void UpdateUI()
     {
         if (timerText != null)
@@ -117,6 +131,7 @@ public class GameManager : MonoBehaviour
             int minutes = Mathf.FloorToInt(timeRemaining / 60);
             int seconds = Mathf.FloorToInt(timeRemaining % 60);
 
+            // Only update text if time changed
             if (minutes != cachedMinutes || seconds != cachedSeconds)
             {
                 cachedMinutes = minutes;
@@ -124,10 +139,12 @@ public class GameManager : MonoBehaviour
                 timerText.text = $"Time: {minutes:00}:{seconds:00}";
             }
 
+            // Turn red when low time
             if (timeRemaining <= 60)
                 timerText.color = Color.red;
         }
 
+        // Update puzzle counter
         if (puzzleCountText != null && puzzlesSolved != cachedPuzzlesSolved)
         {
             cachedPuzzlesSolved = puzzlesSolved;
@@ -135,20 +152,21 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // game over flow
     private void GameOver()
     {
         gameActive = false;
-        Debug.Log("Time's up! Meteor begins final approach.");
+        Debug.Log("game over");
 
-        // Hand off to the meteor — it will fly to Earth and call OnMeteorImpact on collision
+        // Start meteor crash sequence
         if (meteorMover != null)
             meteorMover.BeginFinalApproach();
     }
 
-    /// Called by MeteorImpact when the meteor collider hits the Earth collider.
+    // Called when meteor hits Earth
     public void OnMeteorImpact()
     {
-        Debug.Log("Meteor impacted Earth! Triggering explosion.");
+        Debug.Log("Meteor hit");
 
         if (explosionEffect != null)
             explosionEffect.TriggerExplosion();
@@ -158,35 +176,35 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator ImpactSequence()
     {
-        // Wait for the flash to finish — flashOverlay is now fully opaque black
+        // Wait for explosion flash
         yield return new WaitForSeconds(explosionEffect != null ? explosionEffect.flashDuration : 2f);
 
-        // Hand the black screen off to fadeOverlay so FadeIn can control it
+        // Keep screen black using fade overlay
         if (fadeOverlay != null)
             fadeOverlay.color = Color.black;
 
-        // Clear flashOverlay — fadeOverlay is now holding the black screen
+        // Remove flash overlay
         if (explosionEffect != null)
             explosionEffect.ClearFlashOverlay();
 
-        // Disable meteor and swap models while screen is black
+        // Disable meteor + swap Earth model
         if (meteorMover != null)
             meteorMover.gameObject.SetActive(false);
 
         SwapEarthModels();
 
-        // Small buffer to ensure model swap is complete before revealing
         yield return new WaitForSeconds(0.1f);
 
-        // Fade in to reveal the destroyed Earth
+        // Fade in to destroyed Earth
         yield return StartCoroutine(FadeIn());
 
-        // Hold on the destroyed Earth
+        // Show result for a few seconds
         yield return new WaitForSeconds(3f);
 
+        // Fade back to black
         yield return StartCoroutine(FadeToBlack());
 
-        // Loop GIF and wait for player input
+        // Show game over screen
         if (gameOverScreen != null)
         {
             yield return StartCoroutine(gameOverScreen.PlayAndWaitForInput());
@@ -199,23 +217,24 @@ public class GameManager : MonoBehaviour
 
         RestartLevel();
     }
-    
-    /// Hides the intact Earth and shows the Destroyed model.
+
+    // Swap Earth models
     private void SwapEarthModels()
     {
         if (earthModel != null)
             earthModel.SetActive(false);
-        
+
         if (destroyedModel != null)
             destroyedModel.SetActive(true);
     }
-    
+
+    // Fade from black → visible
     private IEnumerator FadeIn()
     {
         if (fadeOverlay == null) yield break;
-        
+
         float elapsed = 0f;
-        
+
         while (elapsed < fadeInDuration)
         {
             elapsed += Time.deltaTime;
@@ -223,17 +242,18 @@ public class GameManager : MonoBehaviour
             fadeOverlay.color = new Color(0, 0, 0, alpha);
             yield return null;
         }
-        
+
         fadeOverlay.color = new Color(0, 0, 0, 0);
     }
-    
+
+    // Fade from visible → black
     private IEnumerator FadeToBlack()
     {
         if (fadeOverlay == null) yield break;
-        
+
         float elapsed = 0f;
         Color fadeColor = fadeOverlay.color;
-        
+
         while (elapsed < fadeToBlackDuration)
         {
             elapsed += Time.deltaTime;
@@ -241,28 +261,29 @@ public class GameManager : MonoBehaviour
             fadeOverlay.color = new Color(fadeColor.r, fadeColor.g, fadeColor.b, alpha);
             yield return null;
         }
-        
+
         fadeOverlay.color = new Color(fadeColor.r, fadeColor.g, fadeColor.b, 1f);
     }
 
+    // win flow
     private void Victory()
     {
         gameActive = false;
-        Debug.Log("All puzzles solved — triggering meteor explosion.");
 
         if (timerText != null)
         {
-            timerText.text  = "You saved Earth!";
+            timerText.text = "You saved Earth!";
             timerText.color = Color.green;
         }
 
+        // Trigger meteor explosion in space
         if (meteorExplosionEffect != null)
             meteorExplosionEffect.Explode();
         else
             StartCoroutine(VictorySequence(0f));
     }
 
-    /// Called by MeteorExplosionEffect once its particles have fired (≈2 s after detonation).
+    // Called after explosion effect finishes
     public void OnMeteorExploded()
     {
         StartCoroutine(VictorySequence(10f));
@@ -270,14 +291,14 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator VictorySequence(float holdDuration)
     {
-        // Let the player enjoy the explosion before fading out
         yield return new WaitForSeconds(holdDuration);
 
         yield return StartCoroutine(FadeToBlack());
 
-        SceneManager.LoadScene(0);   // index 0 = main menu
+        SceneManager.LoadScene(0); // Load main menu
     }
 
+    // Restart current level
     private void RestartLevel()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);

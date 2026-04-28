@@ -26,9 +26,9 @@ public class CameraShake : MonoBehaviour
     //keeps track of currently running routine
     private Coroutine shakeCoroutine;
 
-    /// <summary>
-    /// Starts Camera shake
-    /// </summary>
+    
+    // Starts Camera shake
+   
     /// <param name="duration">How long the shake lasts in seconds</param>
     /// <param name="magnitude">max strength of shake</param>
     /// <param name="frequency">how fast camera shakes (vibration)</param>
