@@ -3,10 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
-/// Colour gradient puzzle.
-/// Shows a horizontal strip of gradient swatches with one slot missing (dark grey).
-/// The player picks the correct colour from a row of option buttons.
-/// Wrong answers trigger a time penalty. Correct answer completes the puzzle.
+
 public class ColorGradientPuzzle : PuzzleBase
 {
     [Header("Gradient Settings")]
@@ -44,7 +41,7 @@ public class ColorGradientPuzzle : PuzzleBase
         SetInstruction("Find the missing colour in the gradient!");
     }
 
-    // ── Generation ─────────────────────────────────────────────────────────────
+    // Generation 
 
     private void GenerateGradient()
     {
@@ -85,7 +82,7 @@ public class ColorGradientPuzzle : PuzzleBase
         }
     }
 
-    // ── Options ────────────────────────────────────────────────────────────────
+    // Options 
 
     private void GenerateOptions()
     {
@@ -139,7 +136,7 @@ public class ColorGradientPuzzle : PuzzleBase
         }
     }
 
-    // ── Interaction ────────────────────────────────────────────────────────────
+    //Interaction
 
     private void SetupOptionListeners()
     {
@@ -164,7 +161,7 @@ public class ColorGradientPuzzle : PuzzleBase
 
         if (ColorsClose(img.color, correctColor, 0.05f))
         {
-            // Correct — reveal the missing swatch and complete
+            // Correct = reveal the missing swatch and complete
             if (missingIndex < swatchSlots.Count && swatchSlots[missingIndex] != null)
                 swatchSlots[missingIndex].color = correctColor;
 
@@ -172,7 +169,7 @@ public class ColorGradientPuzzle : PuzzleBase
         }
         else
         {
-            // Wrong — penalty then re-enable after a short delay
+            // Wrong = penalty then re-enable after a short delay
             PuzzlePenaltyManager.Instance?.TriggerPenalty();
             SetInstruction("Wrong! Look more carefully at the gradient...");
             StartCoroutine(ResetAfterPenalty());
@@ -202,7 +199,7 @@ public class ColorGradientPuzzle : PuzzleBase
             instructionText.text = text;
     }
 
-    // ── Helpers ────────────────────────────────────────────────────────────────
+    // Helpers 
 
     private bool ColorsClose(Color a, Color b, float tolerance)
     {

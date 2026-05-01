@@ -1,290 +1,211 @@
 using System.Collections;
 using UnityEngine;
 
-/// Spawned on the Meteor GameObject when all puzzles are solved.
-/// Creates layered particle systems to simulate a mid-space explosion,
-/// hides the meteor mesh, then notifies GameManager to begin the victory fade.
+// Handles the big meteor explosion effect when player wins
 [RequireComponent(typeof(AudioSource))]
 public class MeteorExplosionEffect : MonoBehaviour
 {
+    // Audio
     [Header("Audio")]
-    public AudioClip explosionClip;
-    [Tooltip("Volume of the explosion sound.")]
-    public float explosionVolume = 1f;
+    public AudioClip explosionClip;     
+    public float explosionVolume = 1f;  
 
+    // screen flash
     [Header("Flash")]
-    [Tooltip("UI Image used to flash the screen white on detonation.")]
-    public UnityEngine.UI.Image flashOverlay;
-    public float flashInDuration  = 0.15f;
-    public float flashHoldDuration = 0.2f;
-    public float flashOutDuration  = 0.6f;
+    public UnityEngine.UI.Image flashOverlay; 
+    public float flashInDuration = 0.15f;   
+    public float flashHoldDuration = 0.2f;   
+    public float flashOutDuration = 0.6f;    
 
-    // Each particle layer: scale relative to meteor size
-    private const float CoreRadius      = 500f;
+    // particle sizes
+    // 
+    private const float CoreRadius = 500f;
     private const float ShockwaveRadius = 1200f;
-    private const float DebrisRadius    = 900f;
-    private const float SmokeRadius     = 700f;
+    private const float DebrisRadius = 900f;
+    private const float SmokeRadius = 700f;
 
     private AudioSource audioSource;
     private bool hasExploded = false;
 
-    // Shared URP-compatible particle material, built once and reused across all layers.
+    // Shared material for all particle systems
     private Material particleMaterial;
 
+    // Shader names (URP + fallback)
     private static readonly string URPParticleShader = "Universal Render Pipeline/Particles/Unlit";
-    private static readonly string FallbackShader    = "Particles/Standard Unlit";
+    private static readonly string FallbackShader = "Particles/Standard Unlit";
 
     private void Awake()
     {
+        // Get AudioSource on this object
         audioSource = GetComponent<AudioSource>();
+
+        // Create particle material
         BuildParticleMaterial();
     }
 
     private void BuildParticleMaterial()
     {
+        // Try URP shader first, fallback if needed
         Shader shader = Shader.Find(URPParticleShader) ?? Shader.Find(FallbackShader);
+
         if (shader == null)
         {
-            Debug.LogWarning("[MeteorExplosionEffect] Could not find a particle shader — particles may appear magenta.");
+            Debug.LogWarning("No particle shader found!");
             return;
         }
 
+        // Create material (white so particle colors show correctly)
         particleMaterial = new Material(shader);
-        // White base so particle vertex colours are applied without tinting
         particleMaterial.SetColor("_BaseColor", Color.white);
     }
 
-    /// Assigns the shared particle material to a ParticleSystemRenderer.
+    // Applies the material to a particle system
     private void ApplyMaterial(GameObject go)
     {
         if (particleMaterial == null) return;
+
         ParticleSystemRenderer r = go.GetComponent<ParticleSystemRenderer>();
         if (r != null)
         {
-            r.material         = particleMaterial;
-            r.trailMaterial    = particleMaterial;
-            r.renderMode       = ParticleSystemRenderMode.Billboard;
+            r.material = particleMaterial;
+            r.trailMaterial = particleMaterial;
+            r.renderMode = ParticleSystemRenderMode.Billboard;
         }
     }
 
-    /// Called by GameManager when all puzzles are solved.
+    // main explosion
     public void Explode()
     {
+        // Prevent double explosion
         if (hasExploded) return;
+
         hasExploded = true;
         StartCoroutine(ExplosionSequence());
     }
 
     private IEnumerator ExplosionSequence()
     {
-        // ── 1. Flash screen white ─────────────────────────────────────────────
+        // Flash screen white
         if (flashOverlay != null)
             StartCoroutine(FlashScreen());
 
-        // ── 2. Play sound ─────────────────────────────────────────────────────
+        // Play explosion sound
         if (explosionClip != null)
         {
             audioSource.PlayOneShot(explosionClip, explosionVolume);
         }
 
-        // ── 3. Hide the meteor mesh ───────────────────────────────────────────
+        // Hide meteor mesh
         Renderer[] renderers = GetComponentsInChildren<Renderer>();
         foreach (Renderer r in renderers)
             r.enabled = false;
 
-        // Disable collider so nothing reacts to the now-invisible rock
+        // Disable collider
         SphereCollider col = GetComponent<SphereCollider>();
         if (col != null) col.enabled = false;
 
-        // ── 4. Spawn all particle layers at the meteor's position ─────────────
+        // Spawn all explosion effects at meteor position
         Vector3 pos = transform.position;
 
-        SpawnCoreBlast(pos);
-        SpawnShockwave(pos);
-        SpawnDebris(pos);
-        SpawnSmoke(pos);
+        SpawnCoreBlast(pos);   // Fireball
+        SpawnShockwave(pos);   // Expanding ring
+        SpawnDebris(pos);      // Flying chunks
+        SpawnSmoke(pos);       // Smoke cloud
 
-        // ── 5. Wait then notify GameManager to do the victory fade ────────────
+        // Wait, then tell GameManager victory is ready
         yield return new WaitForSeconds(2f);
         GameManager.Instance?.OnMeteorExploded();
     }
 
-    // ── Particle builders ─────────────────────────────────────────────────────
+    // particle effects
 
-    /// Bright orange/yellow fireball core burst.
+    // Main fireball explosion
     private void SpawnCoreBlast(Vector3 pos)
     {
         GameObject go = new GameObject("FX_CoreBlast");
         go.transform.position = pos;
+
         ParticleSystem ps = go.AddComponent<ParticleSystem>();
         ApplyMaterial(go);
-        Destroy(go, 8f);
+
+        Destroy(go, 8f); // Clean up after time
 
         var main = ps.main;
-        main.duration           = 0.5f;
-        main.loop               = false;
-        main.startLifetime      = new ParticleSystem.MinMaxCurve(1.5f, 3f);
-        main.startSpeed         = new ParticleSystem.MinMaxCurve(CoreRadius * 0.3f, CoreRadius * 1.2f);
-        main.startSize          = new ParticleSystem.MinMaxCurve(CoreRadius * 0.3f, CoreRadius * 0.8f);
-        main.startColor         = new ParticleSystem.MinMaxGradient(
-            new Color(1f, 0.7f, 0.1f, 1f),
-            new Color(1f, 0.2f, 0.0f, 0.8f));
-        main.gravityModifier    = 0f;
-        main.simulationSpace    = ParticleSystemSimulationSpace.World;
-        main.maxParticles       = 200;
+        main.duration = 0.5f;
+        main.loop = false;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(1.5f, 3f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(CoreRadius * 0.3f, CoreRadius * 1.2f);
+        main.startSize = new ParticleSystem.MinMaxCurve(CoreRadius * 0.3f, CoreRadius * 0.8f);
+        main.startColor = new ParticleSystem.MinMaxGradient(
+            new Color(1f, 0.7f, 0.1f),
+            new Color(1f, 0.2f, 0f)
+        );
 
         var emission = ps.emission;
         emission.SetBursts(new[] { new ParticleSystem.Burst(0f, 150) });
 
-        var shape = ps.shape;
-        shape.shapeType = ParticleSystemShapeType.Sphere;
-        shape.radius    = CoreRadius * 0.1f;
-
-        var velocityOverLifetime = ps.velocityOverLifetime;
-        velocityOverLifetime.enabled  = true;
-        velocityOverLifetime.radial   = new ParticleSystem.MinMaxCurve(-CoreRadius * 0.05f);
-
-        var colorOverLifetime = ps.colorOverLifetime;
-        colorOverLifetime.enabled = true;
-        Gradient g = new Gradient();
-        g.SetKeys(
-            new[] { new GradientColorKey(new Color(1f, 0.9f, 0.4f), 0f), new GradientColorKey(new Color(0.4f, 0.1f, 0f), 1f) },
-            new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(0f, 1f) }
-        );
-        colorOverLifetime.color = new ParticleSystem.MinMaxGradient(g);
-
         ps.Play();
     }
 
-    /// Thin expanding ring shockwave.
+    // Expanding shockwave ring
     private void SpawnShockwave(Vector3 pos)
     {
         GameObject go = new GameObject("FX_Shockwave");
         go.transform.position = pos;
+
         ParticleSystem ps = go.AddComponent<ParticleSystem>();
         ApplyMaterial(go);
+
         Destroy(go, 5f);
 
         var main = ps.main;
-        main.duration        = 0.05f;
-        main.loop            = false;
-        main.startLifetime   = 1.2f;
-        main.startSpeed      = ShockwaveRadius * 0.8f;
-        main.startSize       = new ParticleSystem.MinMaxCurve(ShockwaveRadius * 0.05f, ShockwaveRadius * 0.15f);
-        main.startColor      = new Color(1f, 0.85f, 0.5f, 0.7f);
-        main.gravityModifier = 0f;
-        main.simulationSpace = ParticleSystemSimulationSpace.World;
-        main.maxParticles    = 300;
+        main.startSpeed = ShockwaveRadius * 0.8f;
+        main.startSize = ShockwaveRadius * 0.1f;
 
         var emission = ps.emission;
         emission.SetBursts(new[] { new ParticleSystem.Burst(0f, 250) });
 
-        var shape = ps.shape;
-        shape.shapeType = ParticleSystemShapeType.Circle;
-        shape.radius    = ShockwaveRadius * 0.05f;
-
-        var colorOverLifetime = ps.colorOverLifetime;
-        colorOverLifetime.enabled = true;
-        Gradient g = new Gradient();
-        g.SetKeys(
-            new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(new Color(1f, 0.4f, 0f), 0.4f), new GradientColorKey(Color.grey, 1f) },
-            new[] { new GradientAlphaKey(0.8f, 0f), new GradientAlphaKey(0.3f, 0.5f), new GradientAlphaKey(0f, 1f) }
-        );
-        colorOverLifetime.color = new ParticleSystem.MinMaxGradient(g);
-
         ps.Play();
     }
 
-    /// Rocky debris chunks flying outward.
+    // Flying debris pieces
     private void SpawnDebris(Vector3 pos)
     {
         GameObject go = new GameObject("FX_Debris");
         go.transform.position = pos;
+
         ParticleSystem ps = go.AddComponent<ParticleSystem>();
         ApplyMaterial(go);
+
         Destroy(go, 10f);
 
         var main = ps.main;
-        main.duration        = 0.3f;
-        main.loop            = false;
-        main.startLifetime   = new ParticleSystem.MinMaxCurve(3f, 7f);
-        main.startSpeed      = new ParticleSystem.MinMaxCurve(DebrisRadius * 0.2f, DebrisRadius * 0.9f);
-        main.startSize       = new ParticleSystem.MinMaxCurve(DebrisRadius * 0.03f, DebrisRadius * 0.12f);
-        main.startRotation   = new ParticleSystem.MinMaxCurve(0f, 360f);
-        main.startColor      = new ParticleSystem.MinMaxGradient(
-            new Color(0.55f, 0.35f, 0.15f),
-            new Color(0.8f,  0.5f,  0.2f));
-        main.gravityModifier = 0f;
-        main.simulationSpace = ParticleSystemSimulationSpace.World;
-        main.maxParticles    = 80;
+        main.startSpeed = new ParticleSystem.MinMaxCurve(DebrisRadius * 0.2f, DebrisRadius * 0.9f);
 
         var emission = ps.emission;
         emission.SetBursts(new[] { new ParticleSystem.Burst(0f, 60) });
 
-        var shape = ps.shape;
-        shape.shapeType = ParticleSystemShapeType.Sphere;
-        shape.radius    = DebrisRadius * 0.05f;
-
-        var rotationOverLifetime = ps.rotationOverLifetime;
-        rotationOverLifetime.enabled = true;
-        rotationOverLifetime.z       = new ParticleSystem.MinMaxCurve(-180f, 180f);
-
-        var colorOverLifetime = ps.colorOverLifetime;
-        colorOverLifetime.enabled = true;
-        Gradient g = new Gradient();
-        g.SetKeys(
-            new[] { new GradientColorKey(new Color(0.9f, 0.6f, 0.1f), 0f), new GradientColorKey(new Color(0.4f, 0.25f, 0.1f), 1f) },
-            new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 0.7f), new GradientAlphaKey(0f, 1f) }
-        );
-        colorOverLifetime.color = new ParticleSystem.MinMaxGradient(g);
-
         ps.Play();
     }
 
-    /// Dark billowing smoke cloud that lingers.
+    // Smoke cloud
     private void SpawnSmoke(Vector3 pos)
     {
         GameObject go = new GameObject("FX_Smoke");
         go.transform.position = pos;
+
         ParticleSystem ps = go.AddComponent<ParticleSystem>();
         ApplyMaterial(go);
-        Destroy(go, 12f);
 
-        var main = ps.main;
-        main.duration        = 1f;
-        main.loop            = false;
-        main.startDelay      = 0.3f;
-        main.startLifetime   = new ParticleSystem.MinMaxCurve(4f, 8f);
-        main.startSpeed      = new ParticleSystem.MinMaxCurve(SmokeRadius * 0.05f, SmokeRadius * 0.25f);
-        main.startSize       = new ParticleSystem.MinMaxCurve(SmokeRadius * 0.4f, SmokeRadius);
-        main.startColor      = new ParticleSystem.MinMaxGradient(
-            new Color(0.15f, 0.1f, 0.08f, 0.6f),
-            new Color(0.4f,  0.3f, 0.25f, 0.4f));
-        main.gravityModifier = 0f;
-        main.simulationSpace = ParticleSystemSimulationSpace.World;
-        main.maxParticles    = 60;
+        Destroy(go, 12f);
 
         var emission = ps.emission;
         emission.SetBursts(new[] { new ParticleSystem.Burst(0f, 40) });
 
-        var shape = ps.shape;
-        shape.shapeType = ParticleSystemShapeType.Sphere;
-        shape.radius    = SmokeRadius * 0.2f;
-
-        var colorOverLifetime = ps.colorOverLifetime;
-        colorOverLifetime.enabled = true;
-        Gradient g = new Gradient();
-        g.SetKeys(
-            new[] { new GradientColorKey(new Color(0.5f, 0.3f, 0.1f), 0f), new GradientColorKey(new Color(0.15f, 0.1f, 0.08f), 0.3f), new GradientColorKey(Color.black, 1f) },
-            new[] { new GradientAlphaKey(0.6f, 0f), new GradientAlphaKey(0.4f, 0.5f), new GradientAlphaKey(0f, 1f) }
-        );
-        colorOverLifetime.color = new ParticleSystem.MinMaxGradient(g);
-
         ps.Play();
     }
 
-    // ── Screen flash ──────────────────────────────────────────────────────────
-
+    // screen flash effect
     private IEnumerator FlashScreen()
     {
         if (flashOverlay == null) yield break;
@@ -300,7 +221,7 @@ public class MeteorExplosionEffect : MonoBehaviour
             yield return null;
         }
 
-        // Hold
+        // Hold white
         flashOverlay.color = Color.white;
         yield return new WaitForSeconds(flashHoldDuration);
 
@@ -313,6 +234,7 @@ public class MeteorExplosionEffect : MonoBehaviour
             yield return null;
         }
 
+        // Hide overlay
         flashOverlay.color = Color.clear;
         flashOverlay.gameObject.SetActive(false);
     }

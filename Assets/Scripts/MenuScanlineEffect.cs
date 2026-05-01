@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-/// Scrolls a scanline overlay texture upward for a retro CRT effect on the menu.
+// Scrolls a scanline overlay texture upward for a retro CRT effect on the menu.
 public class MenuScanlineEffect : MonoBehaviour
 {
     [Header("Scroll Settings")]

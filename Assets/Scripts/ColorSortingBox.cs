@@ -1,7 +1,7 @@
 using UnityEngine;
 
-/// A box that accepts exactly one colour of ColorBlock.
-/// Notifies its parent ColorSortingPuzzle on a correct or incorrect deposit.
+// A box that accepts exactly one colour of ColorBlock.
+// Notifies its parent ColorSortingPuzzle on a correct or incorrect deposit.
 public class ColorSortingBox : MonoBehaviour
 {
     [Header("Identity")]

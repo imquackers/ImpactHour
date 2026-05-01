@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-/// Applies a slow pulse glow effect to the title text.
+// Applies a slow pulse glow effect to the title text.
 public class MenuTitlePulse : MonoBehaviour
 {
     [Header("Pulse Settings")]

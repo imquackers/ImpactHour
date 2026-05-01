@@ -3,11 +3,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-/// <summary>
-/// Shows the controls image after the player clicks New Game.
-/// Waits for any key, then fades out and loads the game scene.
-/// Wire this to the MainMenu canvas and call Show() from MainMenu.StartNewGame().
-/// </summary>
+
+// Shows the controls image after the player clicks New Game.
+// Waits for any key, then fades out and loads the game scene.
+
+
 public class ControlsScreen : MonoBehaviour
 {
     [Header("References")]
@@ -29,10 +29,10 @@ public class ControlsScreen : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Called by MainMenu.StartNewGame(). Fades the menu out, fades the
-    /// controls screen in, then waits for the player to press any key.
-    /// </summary>
+
+    // Called by MainMenu.StartNewGame(). Fades the menu out, fades the controls screen in, then waits for the player to press any key.
+   
+
     public void Show(CanvasGroup menuFadeGroup)
     {
         StartCoroutine(ShowSequence(menuFadeGroup));
@@ -57,7 +57,7 @@ public class ControlsScreen : MonoBehaviour
         SceneManager.LoadScene(gameScene);
     }
 
-    /// <summary>Lerps a CanvasGroup alpha between two values.</summary>
+    // Lerps a CanvasGroup alpha between two values.
     private IEnumerator Fade(CanvasGroup group, float from, float to, float duration)
     {
         float elapsed = 0f;

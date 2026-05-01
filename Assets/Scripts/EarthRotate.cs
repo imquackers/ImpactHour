@@ -1,6 +1,6 @@
 using UnityEngine;
 
-/// Slowly rotates the Earth on its tilted axis.
+// Slowly rotates the Earth on its tilted axis.
 public class EarthRotate : MonoBehaviour
 {
     [Tooltip("Degrees per second. Earth's real-day equivalent at game scale.")]

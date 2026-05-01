@@ -1,8 +1,8 @@
 using UnityEngine;
 
-/// Moves the meteor from MeteorWaypoint toward MeteorWaypoint2 over the level timer.
-/// When BeginFinalApproach() is called (timer hits 0), it switches to direct velocity
-/// flight so it physically travels to Earth and triggers a collision.
+// Moves the meteor from MeteorWaypoint toward MeteorWaypoint2 over the level timer.
+// When BeginFinalApproach() is called (timer hits 0), it switches to direct velocity
+// flight so it physically travels to Earth and triggers a collision.
 public class MeteorMover : MonoBehaviour
 {
     [Header("Waypoints")]
@@ -51,8 +51,8 @@ public class MeteorMover : MonoBehaviour
         UpdateRotation();
     }
 
-    /// Called by GameManager when the timer reaches 0.
-    /// Switches from lerp-based movement to direct velocity flight toward Earth.
+    // Called by GameManager when the timer reaches 0.
+    // Switches from lerp-based movement to direct velocity flight toward Earth.
     public void BeginFinalApproach()
     {
         finalApproachActive = true;

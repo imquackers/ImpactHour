@@ -4,8 +4,8 @@ using UnityEngine.InputSystem;
 using TMPro;
 using System.Collections;
 
-/// Displays an animated looping game-over GIF and a pulsing prompt.
-/// Waits for any key press before signalling the caller to restart.
+// Displays an animated looping game-over GIF and a pulsing prompt.
+// Waits for any key press before signalling the caller to restart.
 [RequireComponent(typeof(RawImage))]
 public class GameOverScreen : MonoBehaviour
 {
@@ -34,7 +34,7 @@ public class GameOverScreen : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    /// Shows the screen, loops the GIF, and waits until the player presses any key.
+    // Shows the screen, loops the GIF, and waits until the player presses any key.
     public IEnumerator PlayAndWaitForInput()
     {
         inputReceived = false;
@@ -64,7 +64,7 @@ public class GameOverScreen : MonoBehaviour
         inputReceived = true;
     }
 
-    /// Hides the screen and stops all coroutines.
+    // Hides the screen and stops all coroutines.
     public void Hide()
     {
         StopAllCoroutines();

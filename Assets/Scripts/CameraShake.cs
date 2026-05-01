@@ -29,9 +29,7 @@ public class CameraShake : MonoBehaviour
     
     // Starts Camera shake
    
-    /// <param name="duration">How long the shake lasts in seconds</param>
-    /// <param name="magnitude">max strength of shake</param>
-    /// <param name="frequency">how fast camera shakes (vibration)</param>
+    
 
     public void Shake(float duration, float magnitude, float frequency = 20f)
     {

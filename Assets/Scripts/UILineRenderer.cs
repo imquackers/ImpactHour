@@ -44,7 +44,7 @@ public class UILineRenderer : MonoBehaviour
             UpdateLine();
     }
 
-    /// Assigns start and end points and immediately recalculates the line.
+    // Assigns start and end points and immediately recalculates the line.
     public void SetPoints(RectTransform start, RectTransform end)
     {
         startPoint = start;
@@ -52,7 +52,7 @@ public class UILineRenderer : MonoBehaviour
         UpdateLine();
     }
 
-    /// Updates line colour at runtime.
+    // Updates line colour at runtime.
     public void SetColor(Color color)
     {
         lineColor = color;

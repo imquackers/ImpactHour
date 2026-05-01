@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 // WirePuzzle
 // A simple matching puzzle where the player must connect wires from the left side to the correct corresponding wires on the right side
-// Left wires are fixed (0 ? n)
+// Left wires are fixed (0 / n)
 // Right wires are shuffled
 // A dictionary stores the correct matches
 // Player selections are stored separately
@@ -46,7 +46,7 @@ public class WirePuzzle : PuzzleBase
         new Dictionary<int, int>();
 
 
-    // INITIALIZATION
+    // Initialisation
  
 
     private void Awake()
@@ -84,7 +84,7 @@ public class WirePuzzle : PuzzleBase
     }
 
 
-    // PUZZLE OPENED
+    // puzzle opened
  
 
     protected override void OpenPuzzle()
@@ -95,7 +95,7 @@ public class WirePuzzle : PuzzleBase
     }
 
 
-    // PLAYER INTERACTION
+    // player interaction
 
 
     // Called when player connects a left wire to a right wire.
@@ -111,7 +111,7 @@ public class WirePuzzle : PuzzleBase
     }
 
  
-    // COMPLETION CHECK
+    // completion check
 
 
     private void CheckCompletion()
@@ -142,7 +142,7 @@ public class WirePuzzle : PuzzleBase
     }
 
  
-    // UTILITY
+    // utility
 
 
     // Fisher–Yates algorithm shuffle

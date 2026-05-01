@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
+//NOT USED ANYMORE
 public class SlidingPuzzle : PuzzleBase
 {
     [Header("Sliding Puzzle Settings")]

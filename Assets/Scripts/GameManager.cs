@@ -228,7 +228,7 @@ public class GameManager : MonoBehaviour
             destroyedModel.SetActive(true);
     }
 
-    // Fade from black → visible
+    // Fade from black to visible
     private IEnumerator FadeIn()
     {
         if (fadeOverlay == null) yield break;
@@ -246,7 +246,7 @@ public class GameManager : MonoBehaviour
         fadeOverlay.color = new Color(0, 0, 0, 0);
     }
 
-    // Fade from visible → black
+    // Fade from visible to black
     private IEnumerator FadeToBlack()
     {
         if (fadeOverlay == null) yield break;

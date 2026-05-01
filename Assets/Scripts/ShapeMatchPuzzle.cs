@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+//
+//NOT USED ANYMORE
+//
 public class ShapeMatchPuzzle : PuzzleBase
 {
     [Header("Shape Match Settings")]

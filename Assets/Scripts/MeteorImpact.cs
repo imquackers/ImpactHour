@@ -1,6 +1,6 @@
 using UnityEngine;
 
-/// Detects when the meteor collides with the Earth trigger and notifies GameManager.
+// Detects when the meteor collides with the Earth trigger and notifies GameManager.
 [RequireComponent(typeof(Collider))]
 public class MeteorImpact : MonoBehaviour
 {

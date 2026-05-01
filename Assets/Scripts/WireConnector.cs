@@ -4,13 +4,12 @@ using UnityEngine.EventSystems;
 
 // WireConnector
 // a single clickable / draggable wire endpoint
-//
 // - Displays the connector colour
 // - Handles click input
 // - Handles drag input (left side only)
 // - Notifies the parent WireMatchingPuzzle of interactions
 // It only forwards user input to the puzzle controller.
-//
+
 public class WireConnector : MonoBehaviour,
     IPointerClickHandler,
     IBeginDragHandler,
@@ -34,7 +33,7 @@ public class WireConnector : MonoBehaviour,
     private Outline outline;
 
   
-    // INITIALIZATION
+    // Initialisation
 
 
     // Called externally after instantiating the connector.
@@ -63,7 +62,7 @@ public class WireConnector : MonoBehaviour,
     }
 
 
-    // CLICK HANDLING
+    // Click Handling
 
 
     // Called when this UI element is clicked
@@ -83,7 +82,7 @@ public class WireConnector : MonoBehaviour,
     }
 
 
-    // DRAG HANDLING
+    // Drag Handling
 
     // Called when user starts dragging
     public void OnBeginDrag(PointerEventData eventData)
@@ -124,7 +123,7 @@ public class WireConnector : MonoBehaviour,
     }
 
 
-    // VISUAL FEEDBACK
+    // Visual Feedback
 
 
     // Enables or disables the white outline highlight.

@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+//
+//NOT USED ANYMORE
+//
 [RequireComponent(typeof(Image))]
 [RequireComponent(typeof(Button))]
 public class SequenceTile : MonoBehaviour

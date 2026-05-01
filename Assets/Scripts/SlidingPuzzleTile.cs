@@ -2,7 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
-
+//
+//NOT USED ANYMORE
+//
 [RequireComponent(typeof(Image))]
 [RequireComponent(typeof(Button))]
 public class SlidingPuzzleTile : MonoBehaviour, IPointerClickHandler
@@ -16,7 +18,7 @@ public class SlidingPuzzleTile : MonoBehaviour, IPointerClickHandler
     private Button button;
     private bool isAnimating = false;
     
-    // REMOVED LateUpdate - it was forcing tiles back to gridPosition!
+    // Removed LateUpdate bc it was forcing tiles back to gridPosition
     
     public void Initialize(SlidingPuzzle puzzleRef, Vector2Int position, int index, Sprite sprite)
     {
